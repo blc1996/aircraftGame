@@ -1,19 +1,15 @@
 function enemyAircraft(x, y){
         this.x = x;
         this.y = y;
-        this.explosionX = x;
-        this.explosionY = y;
-        this.attackedX = x;
-        this.attackedY = y;
-        this.remainTime = 0;
+        this.remainCnt = 30;
         //this.speed = enemySpeed;
         this.attacked = false;
     }
 
     enemyAircraft.prototype.draw = function(){//Draw enemy
-        const canvas = document.getElementById("myCanvas")
-        const context = canvas.getContext("2d")
-        if(!this.attacked){
+        if(this.remainCnt > 0){
+            const canvas = document.getElementById("myCanvas")
+            const context = canvas.getContext("2d")
             var x = this.x - 44;
             var y = this.y - 10;
 
@@ -33,23 +29,30 @@ function enemyAircraft(x, y){
             enemyPath.lineTo(77+x, 16+y);
             context.fill(enemyPath);
             context.stroke(enemyPath);
-            // quad(52+x, 25+y, 66+x, 30+y, 82+x, 25+y, 66+x, 41+y);
-            // quad(56+x, 16+y, 77+x, 16+y, 74+x, 20+y, 59+x, 20+y);
-        }else{//When an enemy is attacked, the enemy will still exist for a while to show the explosion.
-            // if(this.remainTime<10){
-            //     this.remainTime++;
-            //     var x = this.attackedX;
-            //     var y = this.attackedY;
 
-            //     x = x - 44;
-            //     y = y - 10;
-            //     fill(192, 192, 192);
-            //     rect(64+x, 16+y, 4, 18);
-            //     //rect(52+x, 14+y, 28, 27);
-            //     quad(52+x, 25+y, 66+x, 30+y, 82+x, 25+y, 66+x, 41+y);
-            //     quad(56+x, 16+y, 77+x, 16+y, 74+x, 20+y, 59+x, 20+y);
-
-            //     this.drawExplosion();
-            // }
+            if(this.attacked){
+                this.remainCnt--;
+                explosion(this.x - 15, this.y);
+            }
         }
     };
+
+function flushEnermy(){
+    if(window.enemyTimer == 30){
+        window.enemyTimer = 0;
+        window.enemies.set(window.numOfEnemies++, new enemyAircraft(Math.ceil(Math.random()*430), 0));
+    }else{
+      window.enemyTimer++;
+    }
+
+    //draw enermies one by one
+    var iter = Math.min(window.enemies.length, window.enemies._array.length);
+    for(var i = 0; i < iter ; i++){
+        var temp = window.enemies._array[i];
+        if(!temp.attacked){
+            temp.y += 1;
+            window.enemies._array[i] = temp;
+        }
+        temp.draw();
+    }
+}
